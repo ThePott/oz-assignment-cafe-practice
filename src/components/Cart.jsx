@@ -1,12 +1,16 @@
 import data from "../assets/data";
+import { useMenuContext, useCartContext } from "../hooks/hooks"
 
-function Cart({ menu, cart, setCart }) {
+function Cart() {
+  const { menu } = useMenuContext()
+  const { cart } = useCartContext()
   if (!menu)
     return (
       <div style={{ textAlign: "center", margin: "80px" }}>
         메뉴 정보가 없어요!
       </div>
     );
+
   const allMenus = [...menu.커피, ...menu.논커피];
   return (
     <>
@@ -19,8 +23,6 @@ function Cart({ menu, cart, setCart }) {
               item={allMenus.find((menu) => menu.id === el.id)}
               options={el.options}
               quantity={el.quantity}
-              cart={cart}
-              setCart={setCart}
             />
           ))
         ) : (
@@ -31,7 +33,9 @@ function Cart({ menu, cart, setCart }) {
   );
 }
 
-function CartItem({ item, options, quantity, cart, setCart }) {
+function CartItem({ item, options, quantity }) {
+  const { removeFromCart } = useCartContext()
+
   return (
     <li className="cart-item">
       <div className="cart-item-info">
@@ -39,8 +43,8 @@ function CartItem({ item, options, quantity, cart, setCart }) {
         <div>{item.name}</div>
       </div>
       <div className="cart-item-option">
-        {Object.keys(options).map((el) => (
-          <div key={el.id}>
+        {Object.keys(options).map((el, index) => (
+          <div key={`${el.id}__${index}`}>
             {el} : {data.options[el][options[el]]}
           </div>
         ))}
@@ -49,7 +53,7 @@ function CartItem({ item, options, quantity, cart, setCart }) {
       <button
         className="cart-item-delete"
         onClick={() => {
-          setCart(cart.filter((el) => item.id !== el.id));
+          removeFromCart(item)
         }}
       >
         삭제
